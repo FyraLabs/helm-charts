@@ -1,0 +1,5 @@
+Thank you for installing this helm chart. Ghost will now be up and running shortly on your cluster.
+
+Once you have finally set up your external networking/ingress rules, you should be able to access Ghost at the following URL:
+
+{{ .Values.url }}

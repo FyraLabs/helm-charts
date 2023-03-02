@@ -1,0 +1,59 @@
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: library/ghost
+  tag: 5.36.0
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+
+# Toggles the `NODE_ENV` environment variable to `development` or `production`.
+dev_mode: false
+
+url: http://ghost.example.com
+
+database:
+  client: mysql
+  host: null
+  user: null
+  password: null
+  dbname: null
+
+mail:
+  enabled: false
+  transport: SMTP
+  from: ghost@example.com
+  host: mail.example.com
+  port: 587
+  auth:
+    user: ghost
+    password: example
+
+
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+    https: 443
+
+ingress:
+  enabled: false
+  annotations: {}
+  hostname: ghost.example.com
+  path: /
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+  existingClaim: ""
+  subpath: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: true
+  annotations: {}

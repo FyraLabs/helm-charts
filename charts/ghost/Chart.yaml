@@ -1,0 +1,24 @@
+apiVersion: v2
+name: ghost
+version: 1.0.0
+description: |
+  Ghost is a free and open source blogging platform written in JavaScript and distributed under the
+  MIT License, designed to simplify the process of online publishing for individual bloggers
+  as well as online publications.
+
+  Note that this chart requires an already existing MySQL database, and valid
+  credentials for it.
+
+type: application
+keywords:
+  - ghost
+  - blog
+  - blogging
+  - cms
+  - content
+  - content management
+  - content management system
+icon: https://ghost.org/images/logos/ghost-logo-orb.png
+home: https://ghost.org/
+sources:
+  - https://github.com/TryGhost/Ghost
