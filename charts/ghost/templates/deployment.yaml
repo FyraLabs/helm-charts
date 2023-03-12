@@ -11,60 +11,97 @@ metadata: {{ $fullname := printf "%s" .Chart.Name | trunc 63 | trimSuffix "-" }}
     app.kubernetes.io/name: {{ $fullname }}
     app.kubernetes.io/component: {{ $fullname }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
-      app: {{ $fullname }}
-  replicas: {{ default 1 .Values.replicaCount | int }}
+      {{- include "ghost.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app: {{ $fullname }}
+        {{- include "ghost.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ghost.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
-        - name: http
-          containerPort: 2368
-          protocol: TCP
-        {{- if .Values.persistence.enabled }}
-        volumes:
-          - name: {{ $fullname }}-data
-            persistentVolumeClaim:
-              claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}ghost-data{{- end }}
-        volumeMounts:
-          - name: {{ $fullname }}-data
-            mountPath: /var/lib/ghost/content
-        {{- end}}
-        env:
-          - name: url
-            value: {{ .Values.url }}
-          - name: database__client
-            value: {{ .Values.database.client }}
-          - name: database__connection__host
-            value: {{ .Values.database.host }}
-          - name: database__connection__user
-            value: {{ .Values.database.user }}
-          - name: database__connection__password
-            value: {{ .Values.database.password }}
-          - name: database__connection__database
-            value: {{ .Values.database.dbname }}
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.persistence.enabled }}
+          volumes:
+            - name: {{ $fullname }}-data
+              persistentVolumeClaim:
+                claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}ghost-data{{- end }}
+          volumeMounts:
+            - name: {{ $fullname }}-data
+              mountPath: /var/lib/ghost/content
+          {{- end}}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: url
+              value: {{ .Values.url }}
+            - name: database__client
+              value: {{ .Values.database.client }}
+            - name: database__connection__host
+              value: {{ .Values.database.host }}
+            - name: database__connection__user
+              value: {{ .Values.database.user }}
+            - name: database__connection__password
+              value: {{ .Values.database.password }}
+            - name: database__connection__database
+              value: {{ .Values.database.dbname }}
 
-          {{- if .Values.mail.enabled }}
-          - name: mail__transport
-            value: {{ .Values.mail.transport }}
-          - name: mail__from
-            value: {{ .Values.mail.from }}
-          - name: mail__options__host
-            value: {{ .Values.mail.host }}
-          - name: mail__options__port
-            value: {{ .Values.mail.port }}
-          - name: mail__options__auth__user
-            value: {{ .Values.mail.auth.user }}
-          - name: mail__options__auth__pass
-            value: {{ .Values.mail.auth.password }}
-          {{- end }}
-          - name: NODE_ENV
-            value: {{ternary "development" "production" .Values.dev_mode | quote }}
+            {{- if .Values.mail.enabled }}
+            - name: mail__transport
+              value: {{ .Values.mail.transport }}
+            - name: mail__from
+              value: {{ .Values.mail.from }}
+            - name: mail__options__host
+              value: {{ .Values.mail.host }}
+            - name: mail__options__port
+              value: {{ .Values.mail.port }}
+            - name: mail__options__auth__user
+              value: {{ .Values.mail.auth.user }}
+            - name: mail__options__auth__pass
+              value: {{ .Values.mail.auth.password }}
+            {{- end }}
+            - name: NODE_ENV
+              value: {{ternary "development" "production" .Values.dev_mode | quote }}
 
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

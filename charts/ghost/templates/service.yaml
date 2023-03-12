@@ -1,16 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Chart.Name }}
+  name: {{ include "ghost.fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-    app: {{ .Chart.Name }}
+    {{- include "ghost.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-  - port: http
-    targetPort: 
-    protocol: TCP
-    name: http
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
   selector:
-    app: {{ .Chart.Name }}
+    {{- include "ghost.selectorLabels" . | nindent 4 }}
