@@ -40,14 +40,16 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.persistence.enabled }}
-          volumes:
-            - name: {{ $fullname }}-data
-              persistentVolumeClaim:
-                claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}ghost-data{{- end }}
           volumeMounts:
-            - name: {{ $fullname }}-data
-              mountPath: /var/lib/ghost/content
+          - name: {{ $fullname }}-data
+            mountPath: /var/lib/ghost/content
           {{- end}}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: {{ $fullname }}-data
+          persistentVolumeClaim:
+            claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}{{ $fullname }}-data{{- end }}
+      {{- end}}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
