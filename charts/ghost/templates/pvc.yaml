@@ -18,7 +18,8 @@ spec:
   storageClassName: {{ .Values.persistence.storageClass }}
   {{ else }}
   # for each access modes
-  accessModes: {{ .Values.persistence.accessModes }}
+  accessModes: {{ .Values.persistence.accessModes }} 
+  {{ end }}
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
