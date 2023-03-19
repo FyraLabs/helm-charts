@@ -25,7 +25,7 @@ spec:
       {{- end }}
       labels:
         {{- include "ghost.selectorLabels" . | nindent 8 }}
-    spec:
+    spec: {{ $claim := .Values.persistence.existingClaim | default (printf "%s-data" $fullname) }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -36,8 +36,8 @@ spec:
       {{- if .Values.persistence.enabled }}
       volumes:
         - name: {{ $fullname }}-data
-          persistentVolumeClaim:
-            claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}{{ $fullname }}-data{{- end }}
+          persistentVolumeClaim: 
+            claimName: {{ $claim }}
       {{- end}}
       containers:
         - name: {{ .Chart.Name }}
