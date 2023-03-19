@@ -36,7 +36,7 @@ spec:
       {{- if .Values.persistence.enabled }}
       volumes:
         - name: {{ $fullname }}-data
-          persistentVolumeClaim: 
+          persistentVolumeClaim:
             claimName: {{ $claim }}
       {{- end}}
       containers:
@@ -90,10 +90,16 @@ spec:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: x-forwarded-proto
+                  value: https
           readinessProbe:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: x-forwarded-proto
+                  value: https
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
