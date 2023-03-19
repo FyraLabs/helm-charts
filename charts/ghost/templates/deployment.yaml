@@ -56,31 +56,32 @@ spec:
               protocol: TCP
           env:
             - name: url
-              value: {{ .Values.url }}
+              # turn into string
+              value: {{ .Values.url | quote }}
             - name: database__client
-              value: {{ .Values.database.client }}
+              value: {{ .Values.database.client | quote  }}
             - name: database__connection__host
-              value: {{ .Values.database.host }}
+              value: {{ .Values.database.host | quote }}
             - name: database__connection__user
-              value: {{ .Values.database.user }}
+              value: {{ .Values.database.user | quote }}
             - name: database__connection__password
-              value: {{ .Values.database.password }}
+              value: {{ .Values.database.password | quote }}
             - name: database__connection__database
-              value: {{ .Values.database.dbname }}
+              value: {{ .Values.database.dbname | quote }}
 
-            {{- if .Values.mail.enabled }}
+            {{- if .Values.mail.enabled | quote }}
             - name: mail__transport
-              value: {{ .Values.mail.transport }}
+              value: {{ .Values.mail.transport | quote }}
             - name: mail__from
-              value: {{ .Values.mail.from }}
+              value: {{ .Values.mail.from | quote }}
             - name: mail__options__host
-              value: {{ .Values.mail.host }}
+              value: {{ .Values.mail.host | quote }}
             - name: mail__options__port
-              value: {{ .Values.mail.port }}
+              value: {{ .Values.mail.port | quote }}
             - name: mail__options__auth__user
-              value: {{ .Values.mail.auth.user }}
+              value: {{ .Values.mail.auth.user | quote }}
             - name: mail__options__auth__pass
-              value: {{ .Values.mail.auth.password }}
+              value: {{ .Values.mail.auth.password | quote }}
             {{- end }}
             - name: NODE_ENV
               value: {{ternary "development" "production" .Values.dev_mode | quote }}
