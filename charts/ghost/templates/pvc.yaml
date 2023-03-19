@@ -19,6 +19,8 @@ spec:
   {{ else }}
   # for each access modes
   accessModes: {{- range .Values.persistence.accessModes }}
+    - {{ . }} {{- end }}
+  {{ end }}
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
