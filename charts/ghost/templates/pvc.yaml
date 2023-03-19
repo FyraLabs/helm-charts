@@ -16,10 +16,10 @@ metadata: {{ $fullname := printf "%s" .Chart.Name | trunc 63 | trimSuffix "-" }}
 spec:
   {{ if .Values.persistence.storageClass }}
   storageClassName: {{ .Values.persistence.storageClass }}
-  {{ else }}
-  # for each access modes
-  accessModes: {{ .Values.persistence.accessModes }} 
   {{ end }}
+  # for each access modes
+  accessModes:
+    - ReadWriteOnce 
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
